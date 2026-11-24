@@ -1,11 +1,11 @@
-# (2026-11-25) @Gomchiiii 임의 한국어 답장을 생성해 임시 local archive.db에 보관하며 향후 LLM API와 저장소를 교체할 수 있는 MVP 기능 파일입니다.
+# (2026-11-25) @Gomchiiii 임의 한국어 답장의 생성·보관·목록·상세 조회를 제공하며 향후 LLM API와 저장소를 교체할 수 있는 MVP 기능 파일입니다.
 
 import secrets
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 
 
@@ -29,6 +29,12 @@ RANDOM_REPLIES = (
 class GeneratedLetterResponse(BaseModel):
     id: int
     content: str
+    generated_at: datetime
+
+
+class ArchivedLetterListItem(BaseModel):
+    id: int
+    content_preview: str
     generated_at: datetime
 
 
@@ -67,6 +73,74 @@ def save_generated_reply(content: str, generated_at: datetime) -> int:
     if letter_id is None:
         raise RuntimeError("생성된 편지 ID를 만들지 못했습니다.")
     return letter_id
+
+
+# (2026-11-25) @Gomchiiii 외부 보관 저장소로 교체할 때 이 편지 목록 조회 함수의 구현만 변경합니다.
+def list_archived_replies() -> list[ArchivedLetterListItem]:
+    if not LETTER_DATABASE_PATH.exists():
+        return []
+
+    with sqlite3.connect(LETTER_DATABASE_PATH) as connection:
+        create_letter_archive_table(connection)
+        rows = connection.execute(
+            """
+            SELECT id, content, generated_at
+            FROM generated_letter
+            ORDER BY generated_at DESC, id DESC
+            """
+        ).fetchall()
+
+    return [
+        ArchivedLetterListItem(
+            id=row[0],
+            content_preview=(
+                row[1] if len(row[1]) <= 80 else f"{row[1][:80]}…"
+            ),
+            generated_at=datetime.fromisoformat(row[2]),
+        )
+        for row in rows
+    ]
+
+
+# (2026-11-25) @Gomchiiii 외부 보관 저장소로 교체할 때 이 편지 상세 조회 함수의 구현만 변경합니다.
+def get_archived_reply(letter_id: int) -> GeneratedLetterResponse | None:
+    if not LETTER_DATABASE_PATH.exists():
+        return None
+
+    with sqlite3.connect(LETTER_DATABASE_PATH) as connection:
+        create_letter_archive_table(connection)
+        row = connection.execute(
+            """
+            SELECT id, content, generated_at
+            FROM generated_letter
+            WHERE id = ?
+            """,
+            (letter_id,),
+        ).fetchone()
+
+    if row is None:
+        return None
+    return GeneratedLetterResponse(
+        id=row[0],
+        content=row[1],
+        generated_at=datetime.fromisoformat(row[2]),
+    )
+
+
+@router.get("", response_model=list[ArchivedLetterListItem])
+def get_archived_replies() -> list[ArchivedLetterListItem]:
+    return list_archived_replies()
+
+
+@router.get("/{letter_id}", response_model=GeneratedLetterResponse)
+def get_archived_reply_detail(letter_id: int) -> GeneratedLetterResponse:
+    archived_reply = get_archived_reply(letter_id)
+    if archived_reply is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="보관된 편지를 찾을 수 없습니다.",
+        )
+    return archived_reply
 
 
 @router.post("", response_model=GeneratedLetterResponse, status_code=status.HTTP_201_CREATED)

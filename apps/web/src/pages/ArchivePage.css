@@ -1,0 +1,99 @@
+/* (2026-11-25) @Gomchiiii 보관된 편지 목록과 선택한 편지의 상세 내용 영역 스타일을 정의하는 파일입니다. */
+
+.archive-layout {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.archive-list {
+  padding: 20px;
+}
+
+.archive-list h2 {
+  margin: 0 0 14px;
+}
+
+.archive-items {
+  display: grid;
+  gap: 8px;
+}
+
+.archive-item {
+  display: grid;
+  gap: 7px;
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #deded8;
+  border-radius: 7px;
+  color: #333;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.archive-item:hover {
+  background: #f5f5f2;
+}
+
+.archive-item.active {
+  color: #fff;
+  border-color: #111;
+  background: #111;
+}
+
+.archive-item span {
+  font-weight: 700;
+}
+
+.archive-item time {
+  color: #777;
+  font-size: 12px;
+}
+
+.archive-item.active time {
+  color: #bbb;
+}
+
+.archive-item p {
+  overflow: hidden;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.archive-detail {
+  min-height: 280px;
+}
+
+.archive-detail-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: #666;
+  font-size: 13px;
+}
+
+.archive-letter-content {
+  margin: 48px 0 0;
+  font-size: 22px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+.detail-loading {
+  margin: 0;
+  color: #666;
+}
+
+.archive-error {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  color: #8b1d1d;
+  border: 1px solid #e3b5b5;
+  border-radius: 6px;
+  background: #fff4f4;
+}

@@ -1,6 +1,7 @@
-# (2026-11-25) @Gomchiiii 임의 한국어 답장 생성과 archive.db 자동 보관 API를 확인하는 파일입니다.
+# (2026-11-25) @Gomchiiii 임의 한국어 답장의 생성·자동 보관·목록·상세 조회 API를 확인하는 파일입니다.
 
 import sqlite3
+from datetime import datetime, timezone
 
 from fastapi.testclient import TestClient
 
@@ -40,3 +41,45 @@ def test_generate_and_archive_reply(monkeypatch, tmp_path) -> None:
         ).fetchone()
 
     assert stored_letter == (expected_reply,)
+
+
+def test_list_archived_replies_newest_first(monkeypatch, tmp_path) -> None:
+    monkeypatch.setattr(
+        letter,
+        "LETTER_DATABASE_PATH",
+        tmp_path / "archive.db",
+    )
+    letter.save_generated_reply(
+        "먼저 생성된 편지",
+        datetime(2026, 11, 24, 9, 0, tzinfo=timezone.utc),
+    )
+    letter.save_generated_reply(
+        "나중에 생성된 편지",
+        datetime(2026, 11, 25, 9, 0, tzinfo=timezone.utc),
+    )
+
+    response = client.get("/letters")
+
+    assert response.status_code == 200
+    assert [item["content_preview"] for item in response.json()] == [
+        "나중에 생성된 편지",
+        "먼저 생성된 편지",
+    ]
+
+
+def test_get_archived_reply_detail(monkeypatch, tmp_path) -> None:
+    monkeypatch.setattr(
+        letter,
+        "LETTER_DATABASE_PATH",
+        tmp_path / "archive.db",
+    )
+    letter_id = letter.save_generated_reply(
+        "상세 조회할 편지",
+        datetime(2026, 11, 25, 9, 0, tzinfo=timezone.utc),
+    )
+
+    response = client.get(f"/letters/{letter_id}")
+
+    assert response.status_code == 200
+    assert response.json()["content"] == "상세 조회할 편지"
+    assert client.get("/letters/9999").status_code == 404
