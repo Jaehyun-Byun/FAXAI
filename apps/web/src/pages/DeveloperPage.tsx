@@ -5,7 +5,7 @@ import { useState } from "react";
 import "./DeveloperPage.css";
 
 
-type TestSuite = "all" | "health" | "family" | "memory";
+type TestSuite = "all" | "health" | "family" | "letter" | "memory";
 
 type TestRunResult = {
   suite: TestSuite;
@@ -25,6 +25,7 @@ const testSuites: Array<{
   { id: "all", label: "전체 테스트", description: "모든 API 테스트 실행" },
   { id: "health", label: "API 상태", description: "test_health.py 실행" },
   { id: "family", label: "가족 프로필", description: "test_family.py 실행" },
+  { id: "letter", label: "편지 생성", description: "test_letter.py 실행" },
   { id: "memory", label: "메모리", description: "test_memory.py 실행" },
 ];
 

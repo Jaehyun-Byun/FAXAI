@@ -25,6 +25,7 @@ class TestSuite(str, Enum):
     all = "all"
     health = "health"
     family = "family"
+    letter = "letter"
     memory = "memory"
 
 
@@ -32,6 +33,7 @@ TEST_SUITE_TARGETS = {
     TestSuite.all: ["tests"],
     TestSuite.health: ["tests/test_health.py"],
     TestSuite.family: ["tests/test_family.py"],
+    TestSuite.letter: ["tests/test_letter.py"],
     TestSuite.memory: ["tests/test_memory.py"],
 }
 
