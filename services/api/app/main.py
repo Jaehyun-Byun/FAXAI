@@ -5,3 +5,8 @@ from fastapi import FastAPI
 
 app = FastAPI(title="FAXAI API")
 
+
+@app.get("/health", tags=["system"])
+def get_health() -> dict[str, str]:
+    return {"status": "ok"}
+
