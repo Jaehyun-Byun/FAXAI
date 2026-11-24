@@ -14,6 +14,8 @@ type TestSuite =
   | "letter"
   | "memory";
 
+type FaxStatusScenario = "received" | "mock_sent" | "failed";
+
 type TestRunResult = {
   suite: TestSuite;
   status: "passed" | "failed";
@@ -26,6 +28,7 @@ const SAMPLE_DATA_API_URL = "http://127.0.0.1:8000/dev/sample-data";
 const DATABASE_RESET_API_URL = "http://127.0.0.1:8000/dev/databases";
 const MOCK_FAX_INCOMING_API_URL = "http://127.0.0.1:8000/fax/mock/incoming";
 const MOCK_FAX_SEND_API_URL = "http://127.0.0.1:8000/fax/mock/send";
+const FAX_STATUS_SCENARIO_API_URL = "http://127.0.0.1:8000/dev/fax-status";
 
 const testSuites: Array<{
   id: TestSuite;
@@ -59,9 +62,12 @@ export function DeveloperPage() {
   const [sendText, setSendText] = useState("오늘도 좋은 하루 보내렴.");
   const [isReceivingFax, setIsReceivingFax] = useState(false);
   const [isSendingFax, setIsSendingFax] = useState(false);
+  const [runningFaxScenario, setRunningFaxScenario] =
+    useState<FaxStatusScenario | null>(null);
   const [faxMessage, setFaxMessage] = useState("");
 
-  const isFaxBusy = isReceivingFax || isSendingFax;
+  const isFaxBusy =
+    isReceivingFax || isSendingFax || runningFaxScenario !== null;
 
   async function runTestSuite(suite: TestSuite) {
     setRunningSuite(suite);
@@ -244,6 +250,39 @@ export function DeveloperPage() {
     }
   }
 
+  async function createFaxStatusScenario(eventStatus: FaxStatusScenario) {
+    setRunningFaxScenario(eventStatus);
+    setFaxMessage("");
+    setErrorMessage("");
+
+    try {
+      const response = await fetch(
+        `${FAX_STATUS_SCENARIO_API_URL}/${eventStatus}`,
+        { method: "POST" },
+      );
+      if (response.status === 404) {
+        throw new Error("API 서버를 FAXAI_DEV_MODE=1로 실행해 주세요.");
+      }
+      if (!response.ok) {
+        throw new Error("팩스 상태 시나리오를 생성하지 못했습니다.");
+      }
+
+      const result = (await response.json()) as {
+        id: number;
+        status: string;
+      };
+      setFaxMessage(`상태 이벤트 #${result.id} ${result.status} 생성 완료`);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "팩스 상태 시나리오를 생성하지 못했습니다.",
+      );
+    } finally {
+      setRunningFaxScenario(null);
+    }
+  }
+
   return (
     <div className="page developer-page">
       <header className="page-header">
@@ -357,6 +396,40 @@ export function DeveloperPage() {
       </section>
 
       {faxMessage && <p className="dev-success">{faxMessage}</p>}
+
+      <section className="panel dev-fax-scenarios">
+        <div>
+          <h2>단말 상태 시나리오</h2>
+          <p>
+            단말 상태 화면에서 확인할 수신 완료·발송 완료·발송 실패 이벤트를
+            생성합니다.
+          </p>
+        </div>
+        <div className="scenario-buttons">
+          <button
+            type="button"
+            disabled={isFaxBusy || isHardResetting}
+            onClick={() => createFaxStatusScenario("received")}
+          >
+            {runningFaxScenario === "received" ? "생성 중..." : "수신 완료"}
+          </button>
+          <button
+            type="button"
+            disabled={isFaxBusy || isHardResetting}
+            onClick={() => createFaxStatusScenario("mock_sent")}
+          >
+            {runningFaxScenario === "mock_sent" ? "생성 중..." : "발송 완료"}
+          </button>
+          <button
+            className="status-failed-button"
+            type="button"
+            disabled={isFaxBusy || isHardResetting}
+            onClick={() => createFaxStatusScenario("failed")}
+          >
+            {runningFaxScenario === "failed" ? "생성 중..." : "발송 실패"}
+          </button>
+        </div>
+      </section>
 
       <section className="panel dev-danger-zone">
         <div>

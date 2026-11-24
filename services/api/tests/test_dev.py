@@ -1,4 +1,4 @@
-# (2026-11-25) @Gomchiiii 개발 모드의 테스트 실행·샘플 생성·로컬 DB 초기화 API를 확인하는 파일입니다.
+# (2026-11-25) @Gomchiiii 개발 모드의 테스트·샘플·팩스 상태 시나리오·로컬 DB 초기화 API를 확인하는 파일입니다.
 
 import subprocess
 
@@ -60,6 +60,26 @@ def test_create_sample_data_only_when_databases_are_empty(
     assert dev.family.load_family_profile() is not None
     assert len(dev.memory.list_text_memories()) == 3
     assert client.post("/dev/sample-data").status_code == 409
+
+
+def test_create_all_fax_status_scenarios(monkeypatch, tmp_path) -> None:
+    monkeypatch.setattr(
+        dev.fax,
+        "FAX_DATABASE_PATH",
+        tmp_path / "fax.db",
+    )
+
+    for event_status in ("received", "mock_sent", "failed"):
+        response = client.post(f"/dev/fax-status/{event_status}")
+        assert response.status_code == 200
+        assert response.json()["status"] == event_status
+
+    assert {event.status for event in dev.fax.list_fax_events()} == {
+        "received",
+        "mock_sent",
+        "failed",
+    }
+    assert client.post("/dev/fax-status/unknown").status_code == 422
 
 
 def test_hard_reset_only_deletes_allowed_databases(monkeypatch, tmp_path) -> None:

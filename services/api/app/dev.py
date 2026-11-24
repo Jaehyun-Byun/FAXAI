@@ -1,4 +1,4 @@
-# (2026-11-25) @Gomchiiii 로컬 개발 모드에서 pytest 실행·샘플 생성·MVP DB 초기화를 제공하는 API 기능을 정의하는 파일입니다.
+# (2026-11-25) @Gomchiiii 로컬 개발 모드에서 pytest·샘플·팩스 상태 시나리오·MVP DB 초기화를 제공하는 API 기능 파일입니다.
 
 import os
 import subprocess
@@ -30,6 +30,12 @@ class TestSuite(str, Enum):
     fax = "fax"
     letter = "letter"
     memory = "memory"
+
+
+class FaxStatusScenario(str, Enum):
+    received = "received"
+    mock_sent = "mock_sent"
+    failed = "failed"
 
 
 TEST_SUITE_TARGETS = {
@@ -164,6 +170,45 @@ def create_sample_data() -> SampleDataResponse:
 @router.post("/sample-data", response_model=SampleDataResponse)
 def seed_sample_data() -> SampleDataResponse:
     return create_sample_data()
+
+
+# (2026-11-25) @Gomchiiii 단말 상태 화면 검증을 위해 received, mock_sent, failed 팩스 이벤트를 생성하는 개발 전용 함수입니다.
+def create_fax_status_scenario(
+    event_status: FaxStatusScenario,
+) -> fax.FaxEventResponse:
+    direction = (
+        fax.FaxDirection.incoming
+        if event_status == FaxStatusScenario.received
+        else fax.FaxDirection.outgoing
+    )
+    scenario_text = {
+        FaxStatusScenario.received: "개발 모드 수신 완료 테스트",
+        FaxStatusScenario.mock_sent: "개발 모드 발송 완료 테스트",
+        FaxStatusScenario.failed: "개발 모드 발송 실패 테스트",
+    }[event_status]
+    created_at = datetime.now(timezone.utc)
+    event_id = fax.save_fax_event(
+        direction=direction,
+        remote_number="02-0000-0000",
+        text=scenario_text,
+        event_status=event_status.value,
+        created_at=created_at,
+    )
+    return fax.FaxEventResponse(
+        id=event_id,
+        direction=direction,
+        remote_number="02-0000-0000",
+        text=scenario_text,
+        status=event_status.value,
+        created_at=created_at,
+    )
+
+
+@router.post("/fax-status/{event_status}", response_model=fax.FaxEventResponse)
+def seed_fax_status(
+    event_status: FaxStatusScenario,
+) -> fax.FaxEventResponse:
+    return create_fax_status_scenario(event_status)
 
 
 # (2026-11-25) @Gomchiiii 개발 모드에서만 family.db, memory.db, archive.db, fax.db를 삭제해 로컬 MVP 데이터를 완전히 초기화하는 함수입니다.

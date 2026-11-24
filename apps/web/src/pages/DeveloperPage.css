@@ -115,6 +115,33 @@
   justify-self: start;
 }
 
+.dev-fax-scenarios {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.dev-fax-scenarios h2 {
+  margin: 0 0 8px;
+}
+
+.dev-fax-scenarios p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.scenario-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.developer-page .status-failed-button {
+  background: #b42323;
+}
+
 .dev-danger-zone {
   display: flex;
   align-items: center;
