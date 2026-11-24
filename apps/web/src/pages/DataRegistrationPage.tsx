@@ -15,6 +15,7 @@ type FamilyProfile = {
 };
 
 const FAMILY_API_URL = "http://127.0.0.1:8000/family/birth-information";
+const MEMORY_API_URL = "http://127.0.0.1:8000/memories";
 
 export function DataRegistrationPage() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -23,6 +24,8 @@ export function DataRegistrationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [memoryMessage, setMemoryMessage] = useState("");
+  const [isMemorySubmitting, setIsMemorySubmitting] = useState(false);
 
   useEffect(() => {
     async function loadFamilyProfile() {
@@ -142,6 +145,48 @@ export function DataRegistrationPage() {
     }
   }
 
+  async function handleMemorySubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    setIsMemorySubmitting(true);
+    setMemoryMessage("");
+
+    try {
+      const response = await fetch(MEMORY_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          source_date: formData.get("memoryDate"),
+          source_text: formData.get("memoryText"),
+        }),
+      });
+
+      if (response.status === 409) {
+        throw new Error("가족 기본정보를 먼저 저장해 주세요.");
+      }
+      if (!response.ok) {
+        throw new Error("기록 날짜와 텍스트 내용을 확인해 주세요.");
+      }
+
+      const savedMemory = (await response.json()) as {
+        parent_age_at_source: number;
+      };
+      form.reset();
+      setMemoryMessage(
+        `텍스트 메모리를 저장했습니다. 당시 부모 나이: 만 ${savedMemory.parent_age_at_source}세`,
+      );
+    } catch (error) {
+      setMemoryMessage(
+        error instanceof Error
+          ? error.message
+          : "텍스트 메모리를 저장하지 못했습니다.",
+      );
+    } finally {
+      setIsMemorySubmitting(false);
+    }
+  }
+
   return (
     <div className="page data-registration-page">
       <header className="page-header">
@@ -245,6 +290,43 @@ export function DataRegistrationPage() {
             </p>
           </div>
         )}
+      </section>
+
+      <section className="panel memory-panel">
+        <h2>텍스트 자료 등록</h2>
+        <form onSubmit={handleMemorySubmit}>
+          <label>
+            기록 날짜
+            <input
+              name="memoryDate"
+              type="date"
+              required
+              disabled={profile === null || isMemorySubmitting}
+            />
+          </label>
+          <label>
+            텍스트 내용
+            <textarea
+              name="memoryText"
+              required
+              maxLength={10000}
+              rows={8}
+              disabled={profile === null || isMemorySubmitting}
+              placeholder="부모의 경험이나 기억을 입력하세요."
+            />
+          </label>
+          <button
+            type="submit"
+            disabled={profile === null || isMemorySubmitting}
+          >
+            {isMemorySubmitting ? "저장 중..." : "텍스트 메모리 저장"}
+          </button>
+        </form>
+
+        {profile === null && (
+          <p className="message">가족 기본정보를 먼저 저장해 주세요.</p>
+        )}
+        {memoryMessage && <p className="message">{memoryMessage}</p>}
       </section>
     </div>
   );

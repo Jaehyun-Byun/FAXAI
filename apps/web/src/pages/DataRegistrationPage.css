@@ -1,4 +1,4 @@
-/* (2026-11-25) @Gomchiiii 가족 기본정보 입력 폼과 계산 결과 영역 스타일을 정의하는 파일입니다. */
+/* (2026-11-25) @Gomchiiii 가족 기본정보와 텍스트 메모리 등록 화면의 전용 스타일을 정의하는 파일입니다. */
 
 .data-registration-page form {
   display: grid;
@@ -27,7 +27,8 @@
   font-weight: 700;
 }
 
-.data-registration-page input {
+.data-registration-page input,
+.data-registration-page textarea {
   box-sizing: border-box;
   width: 100%;
   padding: 11px 12px;
@@ -37,6 +38,11 @@
 }
 
 .data-registration-page input:disabled {
+  color: #555;
+  background: #eee;
+}
+
+.data-registration-page textarea:disabled {
   color: #555;
   background: #eee;
 }
@@ -84,4 +90,12 @@
 
 .data-registration-page .result p + p {
   margin-top: 8px;
+}
+
+.data-registration-page .memory-panel {
+  margin-top: 24px;
+}
+
+.data-registration-page .memory-panel button {
+  justify-self: start;
 }

@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.family import router as family_router
+from app.memory import router as memory_router
 
 
 app = FastAPI(title="FAXAI API")
@@ -16,6 +17,7 @@ app.add_middleware(
 )
 
 app.include_router(family_router)
+app.include_router(memory_router)
 
 
 @app.get("/health", tags=["system"])
