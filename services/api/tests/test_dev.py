@@ -1,4 +1,4 @@
-# (2026-11-25) @Gomchiiii 개발 모드의 테스트 실행과 샘플 데이터 생성 API를 확인하는 파일입니다.
+# (2026-11-25) @Gomchiiii 개발 모드의 테스트 실행·샘플 생성·로컬 DB 초기화 API를 확인하는 파일입니다.
 
 import subprocess
 
@@ -60,3 +60,33 @@ def test_create_sample_data_only_when_databases_are_empty(
     assert dev.family.load_family_profile() is not None
     assert len(dev.memory.list_text_memories()) == 3
     assert client.post("/dev/sample-data").status_code == 409
+
+
+def test_hard_reset_only_deletes_allowed_databases(monkeypatch, tmp_path) -> None:
+    family_database = tmp_path / "family.db"
+    memory_database = tmp_path / "memory.db"
+    archive_database = tmp_path / "archive.db"
+    unrelated_file = tmp_path / "keep.txt"
+
+    for database_path in (family_database, memory_database, archive_database):
+        database_path.write_bytes(b"temporary database")
+    unrelated_file.write_text("keep", encoding="utf-8")
+
+    monkeypatch.setattr(dev, "DEV_DATA_DIRECTORY", tmp_path)
+    monkeypatch.setattr(dev.family, "FAMILY_DATABASE_PATH", family_database)
+    monkeypatch.setattr(dev.memory, "MEMORY_DATABASE_PATH", memory_database)
+    monkeypatch.setattr(dev.letter, "LETTER_DATABASE_PATH", archive_database)
+
+    response = client.delete("/dev/databases")
+
+    assert response.status_code == 200
+    assert response.json()["deleted_databases"] == [
+        "family.db",
+        "memory.db",
+        "archive.db",
+    ]
+    assert not family_database.exists()
+    assert not memory_database.exists()
+    assert not archive_database.exists()
+    assert unrelated_file.exists()
+    assert client.delete("/dev/databases").json()["deleted_databases"] == []

@@ -1,4 +1,4 @@
-# (2026-11-25) @Gomchiiii 로컬 개발 모드에서 허용된 pytest 테스트를 실행하고 빈 로컬 DB에 샘플 데이터를 생성하는 API 기능을 정의하는 파일입니다.
+# (2026-11-25) @Gomchiiii 로컬 개발 모드에서 pytest 실행·샘플 생성·MVP DB 초기화를 제공하는 API 기능을 정의하는 파일입니다.
 
 import os
 import subprocess
@@ -11,10 +11,11 @@ from threading import Lock
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 
-from app import family, memory
+from app import family, letter, memory
 
 
 API_ROOT = Path(__file__).resolve().parents[1]
+DEV_DATA_DIRECTORY = family.PROJECT_ROOT / "data"
 MAX_OUTPUT_LENGTH = 20_000
 
 router = APIRouter(prefix="/dev", tags=["development"])
@@ -48,6 +49,10 @@ class TestRunResponse(BaseModel):
 class SampleDataResponse(BaseModel):
     family_created: bool
     memories_created: int
+
+
+class DatabaseResetResponse(BaseModel):
+    deleted_databases: list[str]
 
 
 def run_pytest(suite: TestSuite) -> TestRunResponse:
@@ -155,3 +160,31 @@ def create_sample_data() -> SampleDataResponse:
 @router.post("/sample-data", response_model=SampleDataResponse)
 def seed_sample_data() -> SampleDataResponse:
     return create_sample_data()
+
+
+# (2026-11-25) @Gomchiiii 개발 모드에서만 family.db, memory.db, archive.db를 삭제해 로컬 MVP 데이터를 완전히 초기화하는 함수입니다.
+def hard_reset_databases() -> DatabaseResetResponse:
+    allowed_directory = DEV_DATA_DIRECTORY.resolve()
+    database_paths = (
+        family.FAMILY_DATABASE_PATH,
+        memory.MEMORY_DATABASE_PATH,
+        letter.LETTER_DATABASE_PATH,
+    )
+    deleted_databases: list[str] = []
+
+    for database_path in database_paths:
+        resolved_path = database_path.resolve()
+        if resolved_path.parent != allowed_directory:
+            raise RuntimeError("허용된 data 디렉터리 밖의 DB는 삭제할 수 없습니다.")
+        if resolved_path.exists():
+            if not resolved_path.is_file():
+                raise RuntimeError("DB 초기화 대상이 파일이 아닙니다.")
+            resolved_path.unlink()
+            deleted_databases.append(resolved_path.name)
+
+    return DatabaseResetResponse(deleted_databases=deleted_databases)
+
+
+@router.delete("/databases", response_model=DatabaseResetResponse)
+def reset_databases() -> DatabaseResetResponse:
+    return hard_reset_databases()
