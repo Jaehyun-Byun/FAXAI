@@ -1,0 +1,54 @@
+/* (2026-11-25) @Gomchiiii FAXAI 앱의 공통 레이아웃과 페이지·패널 스타일을 정의하는 파일입니다. */
+
+.app-shell {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.app-content {
+  box-sizing: border-box;
+  width: min(100%, 1100px);
+  padding: 64px;
+}
+
+.page-header {
+  margin-bottom: 32px;
+}
+
+h1 {
+  margin: 8px 0 12px;
+  font-size: 36px;
+}
+
+h2 {
+  margin: 0 0 24px;
+  font-size: 20px;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.description {
+  margin: 0;
+  color: #555;
+}
+
+.panel {
+  padding: 32px;
+  border: 1px solid #d6d6d0;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.empty-state {
+  color: #555;
+}
+
+.empty-state p {
+  margin: 8px 0 0;
+}

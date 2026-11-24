@@ -1,0 +1,87 @@
+/* (2026-11-25) @Gomchiiii 가족 기본정보 입력 폼과 계산 결과 영역 스타일을 정의하는 파일입니다. */
+
+.data-registration-page form {
+  display: grid;
+  gap: 24px;
+}
+
+.data-registration-page fieldset {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.data-registration-page legend {
+  grid-column: 1 / -1;
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+
+.data-registration-page label {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.data-registration-page input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #b8b8b2;
+  border-radius: 6px;
+  font-weight: 400;
+}
+
+.data-registration-page input:disabled {
+  color: #555;
+  background: #eee;
+}
+
+.data-registration-page button {
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 6px;
+  color: #fff;
+  background: #111;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.data-registration-page button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.data-registration-page .actions {
+  display: flex;
+  gap: 10px;
+}
+
+.data-registration-page .secondary-button {
+  color: #111;
+  border: 1px solid #b8b8b2;
+  background: #fff;
+}
+
+.data-registration-page .message {
+  margin: 24px 0 0;
+}
+
+.data-registration-page .result {
+  margin-top: 20px;
+  padding: 16px 18px;
+  border-left: 4px solid #111;
+  background: #f5f5f2;
+}
+
+.data-registration-page .result p {
+  margin: 0;
+}
+
+.data-registration-page .result p + p {
+  margin-top: 8px;
+}
