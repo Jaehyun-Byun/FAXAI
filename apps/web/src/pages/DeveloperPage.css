@@ -1,0 +1,126 @@
+/* (2026-11-25) @Gomchiiii 개발 모드의 테스트 실행·샘플 데이터 생성·결과 출력 영역 스타일을 정의하는 파일입니다. */
+
+.dev-test-list {
+  display: grid;
+  gap: 0;
+}
+
+.dev-test-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 18px 0;
+  border-bottom: 1px solid #e5e5df;
+}
+
+.dev-test-item:first-child {
+  padding-top: 0;
+}
+
+.dev-test-item:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.dev-test-item p {
+  margin: 5px 0 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.developer-page button {
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 6px;
+  color: #fff;
+  background: #111;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.developer-page button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.dev-sample-data {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.dev-sample-data h2 {
+  margin: 0 0 8px;
+}
+
+.dev-sample-data p {
+  margin: 0;
+  color: #666;
+}
+
+.dev-success {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  color: #17633a;
+  border: 1px solid #add9bd;
+  border-radius: 6px;
+  background: #edf9f1;
+}
+
+.dev-error {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  color: #8b1d1d;
+  border: 1px solid #e3b5b5;
+  border-radius: 6px;
+  background: #fff4f4;
+}
+
+.dev-result {
+  margin-top: 24px;
+}
+
+.dev-result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.dev-result-header h2 {
+  margin: 0;
+}
+
+.test-status {
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.test-status.passed {
+  color: #17633a;
+  background: #e7f6ed;
+}
+
+.test-status.failed {
+  color: #8b1d1d;
+  background: #fdeaea;
+}
+
+.dev-result pre {
+  overflow: auto;
+  margin: 0;
+  padding: 18px;
+  border-radius: 8px;
+  color: #eee;
+  background: #181818;
+  font-family: Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}

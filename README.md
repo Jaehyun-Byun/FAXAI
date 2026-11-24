@@ -34,11 +34,19 @@ API:
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --app-dir services\api
 ```
 
+개발 테스트 화면을 사용할 때는 API를 다음처럼 실행합니다.
+
+```powershell
+$env:FAXAI_DEV_MODE="1"
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --app-dir services\api
+```
+
 접속 주소:
 
 - 웹: <http://localhost:5173>
 - API 문서: <http://127.0.0.1:8000/docs>
 - API 상태 확인: <http://127.0.0.1:8000/health>
+- 개발 도구: <http://localhost:5173/dev>
 
 ## 웹 빌드
 

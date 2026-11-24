@@ -1,5 +1,7 @@
 # (2026-11-25) @Gomchiiii FAXAI 백엔드에서 실행할 FastAPI 애플리케이션 객체를 생성하는 파일입니다.
 
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -18,6 +20,11 @@ app.add_middleware(
 
 app.include_router(family_router)
 app.include_router(memory_router)
+
+if os.getenv("FAXAI_DEV_MODE") == "1":
+    from app.dev import router as dev_router
+
+    app.include_router(dev_router)
 
 
 @app.get("/health", tags=["system"])

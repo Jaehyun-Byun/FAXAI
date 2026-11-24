@@ -1,4 +1,4 @@
-// (2026-11-25) @Gomchiiii FAXAI의 여섯 화면으로 이동하는 공통 탐색 메뉴를 정의하는 파일입니다.
+// (2026-11-25) @Gomchiiii FAXAI의 기본 여섯 화면과 개발 도구 화면으로 이동하는 탐색 메뉴를 정의하는 파일입니다.
 
 import { NavLink } from "react-router-dom";
 
@@ -14,6 +14,10 @@ const navigationItems = [
   { to: "/terminal", label: "단말 상태" },
 ];
 
+const visibleNavigationItems = import.meta.env.DEV
+  ? [...navigationItems, { to: "/dev", label: "개발 도구" }]
+  : navigationItems;
+
 export function AppNavigation() {
   return (
     <aside className="app-navigation">
@@ -27,7 +31,7 @@ export function AppNavigation() {
 
       <nav aria-label="주요 화면">
         <ul>
-          {navigationItems.map((item) => (
+          {visibleNavigationItems.map((item) => (
             <li key={item.to}>
               <NavLink
                 to={item.to}

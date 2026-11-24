@@ -6,6 +6,7 @@ import { AppNavigation } from "./components/AppNavigation";
 import { ArchivePage } from "./pages/ArchivePage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { DataRegistrationPage } from "./pages/DataRegistrationPage";
+import { DeveloperPage } from "./pages/DeveloperPage";
 import { LetterGenerationPage } from "./pages/LetterGenerationPage";
 import { MemoryReviewPage } from "./pages/MemoryReviewPage";
 import { TerminalStatusPage } from "./pages/TerminalStatusPage";
@@ -23,6 +24,9 @@ export function App() {
           <Route path="/letters" element={<LetterGenerationPage />} />
           <Route path="/archive" element={<ArchivePage />} />
           <Route path="/terminal" element={<TerminalStatusPage />} />
+          {import.meta.env.DEV && (
+            <Route path="/dev" element={<DeveloperPage />} />
+          )}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
