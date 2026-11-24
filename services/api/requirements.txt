@@ -1,0 +1,5 @@
+# (2026-11-25) @Gomchiiii FAXAI API 서버 실행에 필요한 Python 패키지를 정의하는 파일입니다.
+
+fastapi==0.121.3
+uvicorn[standard]==0.38.0
+

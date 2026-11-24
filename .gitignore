@@ -1,0 +1,25 @@
+# (2026-11-25) @Gomchiiii Git이 추적하지 않을 로컬 개발 파일과 빌드 결과물을 정의하는 파일입니다.
+
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
+.uv-cache/
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+
+.env
+.env.*
+!.env.example
+
+*.db
+*.sqlite
+*.sqlite3
+
+.DS_Store
+Thumbs.db
+
+

@@ -1,0 +1,16 @@
+/* (2026-11-25) @Gomchiiii FAXAI 웹앱에 공통으로 적용되는 기본 화면 스타일을 정의하는 파일입니다. */
+
+:root {
+  font-family: Arial, sans-serif;
+  color: #111;
+  background: #fff;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  padding: 24px;
+}
+
