@@ -1,0 +1,89 @@
+/* (2026-11-25) @Gomchiiii 등록된 메모리의 목록과 수정·삭제 화면 스타일을 정의하는 파일입니다. */
+
+.memory-list {
+  display: grid;
+  gap: 16px;
+}
+
+.memory-card {
+  display: grid;
+  gap: 20px;
+}
+
+.memory-meta {
+  display: flex;
+  gap: 12px;
+  color: #666;
+  font-size: 13px;
+}
+
+.memory-text {
+  margin: 0;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.memory-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.memory-review-page button {
+  padding: 9px 14px;
+  border: 0;
+  border-radius: 6px;
+  color: #fff;
+  background: #111;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.memory-review-page button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.memory-review-page .secondary-button {
+  color: #111;
+  border: 1px solid #b8b8b2;
+  background: #fff;
+}
+
+.memory-review-page .danger-button {
+  color: #a32020;
+  border: 1px solid #d9adad;
+  background: #fff;
+}
+
+.memory-edit-form {
+  display: grid;
+  gap: 18px;
+}
+
+.memory-edit-form label {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.memory-edit-form input,
+.memory-edit-form textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #b8b8b2;
+  border-radius: 6px;
+  font: inherit;
+  font-weight: 400;
+}
+
+.memory-error {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  color: #8b1d1d;
+  border: 1px solid #e3b5b5;
+  border-radius: 6px;
+  background: #fff4f4;
+}
