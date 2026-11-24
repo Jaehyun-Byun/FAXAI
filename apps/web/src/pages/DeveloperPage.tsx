@@ -1,11 +1,18 @@
-// (2026-11-25) @Gomchiiii 로컬 개발자가 테스트·샘플 생성·MVP DB 초기화를 실행하는 화면을 정의하는 파일입니다.
+// (2026-11-25) @Gomchiiii 로컬 개발자가 테스트·샘플 생성·Mock 팩스 송수신·MVP DB 초기화를 실행하는 화면을 정의하는 파일입니다.
 
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 
 import "./DeveloperPage.css";
 
 
-type TestSuite = "all" | "health" | "family" | "letter" | "memory";
+type TestSuite =
+  | "all"
+  | "dashboard"
+  | "health"
+  | "family"
+  | "fax"
+  | "letter"
+  | "memory";
 
 type TestRunResult = {
   suite: TestSuite;
@@ -17,6 +24,8 @@ type TestRunResult = {
 const TEST_API_URL = "http://127.0.0.1:8000/dev/tests";
 const SAMPLE_DATA_API_URL = "http://127.0.0.1:8000/dev/sample-data";
 const DATABASE_RESET_API_URL = "http://127.0.0.1:8000/dev/databases";
+const MOCK_FAX_INCOMING_API_URL = "http://127.0.0.1:8000/fax/mock/incoming";
+const MOCK_FAX_SEND_API_URL = "http://127.0.0.1:8000/fax/mock/send";
 
 const testSuites: Array<{
   id: TestSuite;
@@ -24,8 +33,14 @@ const testSuites: Array<{
   description: string;
 }> = [
   { id: "all", label: "전체 테스트", description: "모든 API 테스트 실행" },
+  {
+    id: "dashboard",
+    label: "대시보드",
+    description: "test_dashboard.py 실행",
+  },
   { id: "health", label: "API 상태", description: "test_health.py 실행" },
   { id: "family", label: "가족 프로필", description: "test_family.py 실행" },
+  { id: "fax", label: "Mock 팩스", description: "test_fax.py 실행" },
   { id: "letter", label: "편지 생성", description: "test_letter.py 실행" },
   { id: "memory", label: "메모리", description: "test_memory.py 실행" },
 ];
@@ -38,6 +53,15 @@ export function DeveloperPage() {
   const [sampleMessage, setSampleMessage] = useState("");
   const [isHardResetting, setIsHardResetting] = useState(false);
   const [resetMessage, setResetMessage] = useState("");
+  const [receiveNumber, setReceiveNumber] = useState("02-1234-5678");
+  const [receiveText, setReceiveText] = useState("오늘 잘 지내고 있니?");
+  const [sendNumber, setSendNumber] = useState("02-1234-5678");
+  const [sendText, setSendText] = useState("오늘도 좋은 하루 보내렴.");
+  const [isReceivingFax, setIsReceivingFax] = useState(false);
+  const [isSendingFax, setIsSendingFax] = useState(false);
+  const [faxMessage, setFaxMessage] = useState("");
+
+  const isFaxBusy = isReceivingFax || isSendingFax;
 
   async function runTestSuite(suite: TestSuite) {
     setRunningSuite(suite);
@@ -106,7 +130,7 @@ export function DeveloperPage() {
 
   async function hardResetDatabases() {
     const shouldReset = window.confirm(
-      "family.db, memory.db, archive.db를 모두 삭제합니다. 이 작업은 복구할 수 없습니다. 계속하시겠습니까?",
+      "family.db, memory.db, archive.db, fax.db를 모두 삭제합니다. 이 작업은 복구할 수 없습니다. 계속하시겠습니까?",
     );
     if (!shouldReset) {
       return;
@@ -148,6 +172,78 @@ export function DeveloperPage() {
     }
   }
 
+  async function receiveMockFax(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsReceivingFax(true);
+    setFaxMessage("");
+    setErrorMessage("");
+
+    try {
+      const response = await fetch(MOCK_FAX_INCOMING_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sender_number: receiveNumber,
+          text: receiveText,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error("Mock 팩스 수신을 실행하지 못했습니다.");
+      }
+
+      const result = (await response.json()) as {
+        incoming: { id: number; status: string };
+        reply: { id: number; status: string };
+      };
+      setFaxMessage(
+        `수신 #${result.incoming.id} ${result.incoming.status}, 자동 회신 #${result.reply.id} ${result.reply.status}`,
+      );
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Mock 팩스 수신을 실행하지 못했습니다.",
+      );
+    } finally {
+      setIsReceivingFax(false);
+    }
+  }
+
+  async function sendMockFax(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsSendingFax(true);
+    setFaxMessage("");
+    setErrorMessage("");
+
+    try {
+      const response = await fetch(MOCK_FAX_SEND_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          recipient_number: sendNumber,
+          text: sendText,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error("Mock 팩스 발신을 실행하지 못했습니다.");
+      }
+
+      const result = (await response.json()) as {
+        id: number;
+        status: string;
+      };
+      setFaxMessage(`발신 #${result.id} ${result.status}`);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Mock 팩스 발신을 실행하지 못했습니다.",
+      );
+    } finally {
+      setIsSendingFax(false);
+    }
+  }
+
   return (
     <div className="page developer-page">
       <header className="page-header">
@@ -167,7 +263,7 @@ export function DeveloperPage() {
             </div>
             <button
               type="button"
-              disabled={runningSuite !== null || isHardResetting}
+              disabled={runningSuite !== null || isHardResetting || isFaxBusy}
               onClick={() => runTestSuite(suite.id)}
             >
               {runningSuite === suite.id ? "실행 중..." : "실행"}
@@ -187,7 +283,10 @@ export function DeveloperPage() {
         <button
           type="button"
           disabled={
-            isCreatingSample || runningSuite !== null || isHardResetting
+            isCreatingSample ||
+            runningSuite !== null ||
+            isHardResetting ||
+            isFaxBusy
           }
           onClick={createSampleData}
         >
@@ -197,19 +296,84 @@ export function DeveloperPage() {
 
       {sampleMessage && <p className="dev-success">{sampleMessage}</p>}
 
+      <section className="dev-fax-grid">
+        <form className="panel dev-fax-form" onSubmit={receiveMockFax}>
+          <div>
+            <h2>Mock 팩스 수신</h2>
+            <p>가짜 수신 웹훅과 같은 번호 자동 회신을 실행합니다.</p>
+          </div>
+          <label>
+            발신 번호
+            <input
+              type="text"
+              required
+              value={receiveNumber}
+              onChange={(event) => setReceiveNumber(event.target.value)}
+            />
+          </label>
+          <label>
+            수신 텍스트
+            <textarea
+              required
+              rows={4}
+              maxLength={10000}
+              value={receiveText}
+              onChange={(event) => setReceiveText(event.target.value)}
+            />
+          </label>
+          <button type="submit" disabled={isFaxBusy || isHardResetting}>
+            {isReceivingFax ? "수신 중..." : "팩스 수신 실행"}
+          </button>
+        </form>
+
+        <form className="panel dev-fax-form" onSubmit={sendMockFax}>
+          <div>
+            <h2>Mock 팩스 발신</h2>
+            <p>Mock Provider를 통해 지정한 번호로 발신합니다.</p>
+          </div>
+          <label>
+            수신 번호
+            <input
+              type="text"
+              required
+              value={sendNumber}
+              onChange={(event) => setSendNumber(event.target.value)}
+            />
+          </label>
+          <label>
+            발송 텍스트
+            <textarea
+              required
+              rows={4}
+              maxLength={10000}
+              value={sendText}
+              onChange={(event) => setSendText(event.target.value)}
+            />
+          </label>
+          <button type="submit" disabled={isFaxBusy || isHardResetting}>
+            {isSendingFax ? "발신 중..." : "팩스 발신 실행"}
+          </button>
+        </form>
+      </section>
+
+      {faxMessage && <p className="dev-success">{faxMessage}</p>}
+
       <section className="panel dev-danger-zone">
         <div>
           <h2>하드 리셋</h2>
           <p>
-            가족·메모리·편지 DB를 모두 삭제합니다. 삭제한 데이터는 복구할
-            수 없습니다.
+            가족·메모리·편지·팩스 DB를 모두 삭제합니다. 삭제한 데이터는
+            복구할 수 없습니다.
           </p>
         </div>
         <button
           className="danger-button"
           type="button"
           disabled={
-            isHardResetting || isCreatingSample || runningSuite !== null
+            isHardResetting ||
+            isCreatingSample ||
+            runningSuite !== null ||
+            isFaxBusy
           }
           onClick={hardResetDatabases}
         >

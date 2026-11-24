@@ -1,0 +1,79 @@
+/* (2026-11-25) @Gomchiiii 활동 수 요약 카드와 최근 팩스 목록의 화면 스타일을 정의하는 파일입니다. */
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.summary-card {
+  display: grid;
+  gap: 14px;
+}
+
+.summary-card span {
+  color: #666;
+  font-size: 14px;
+}
+
+.summary-card strong {
+  font-size: 36px;
+}
+
+.recent-faxes {
+  margin-top: 24px;
+}
+
+.recent-faxes h2 {
+  margin: 0 0 18px;
+}
+
+.recent-fax-list {
+  display: grid;
+}
+
+.recent-fax-item {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr) 170px;
+  gap: 18px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #e5e5df;
+}
+
+.recent-fax-item:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.recent-fax-item > div {
+  display: grid;
+  gap: 4px;
+}
+
+.recent-fax-item span,
+.recent-fax-item time {
+  color: #666;
+  font-size: 12px;
+}
+
+.recent-fax-item p {
+  overflow: hidden;
+  margin: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-empty {
+  margin: 0;
+  color: #666;
+}
+
+.dashboard-error {
+  margin: 0;
+  padding: 12px 14px;
+  color: #8b1d1d;
+  border: 1px solid #e3b5b5;
+  border-radius: 6px;
+  background: #fff4f4;
+}

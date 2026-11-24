@@ -66,9 +66,15 @@ def test_hard_reset_only_deletes_allowed_databases(monkeypatch, tmp_path) -> Non
     family_database = tmp_path / "family.db"
     memory_database = tmp_path / "memory.db"
     archive_database = tmp_path / "archive.db"
+    fax_database = tmp_path / "fax.db"
     unrelated_file = tmp_path / "keep.txt"
 
-    for database_path in (family_database, memory_database, archive_database):
+    for database_path in (
+        family_database,
+        memory_database,
+        archive_database,
+        fax_database,
+    ):
         database_path.write_bytes(b"temporary database")
     unrelated_file.write_text("keep", encoding="utf-8")
 
@@ -76,6 +82,7 @@ def test_hard_reset_only_deletes_allowed_databases(monkeypatch, tmp_path) -> Non
     monkeypatch.setattr(dev.family, "FAMILY_DATABASE_PATH", family_database)
     monkeypatch.setattr(dev.memory, "MEMORY_DATABASE_PATH", memory_database)
     monkeypatch.setattr(dev.letter, "LETTER_DATABASE_PATH", archive_database)
+    monkeypatch.setattr(dev.fax, "FAX_DATABASE_PATH", fax_database)
 
     response = client.delete("/dev/databases")
 
@@ -84,9 +91,11 @@ def test_hard_reset_only_deletes_allowed_databases(monkeypatch, tmp_path) -> Non
         "family.db",
         "memory.db",
         "archive.db",
+        "fax.db",
     ]
     assert not family_database.exists()
     assert not memory_database.exists()
     assert not archive_database.exists()
+    assert not fax_database.exists()
     assert unrelated_file.exists()
     assert client.delete("/dev/databases").json()["deleted_databases"] == []

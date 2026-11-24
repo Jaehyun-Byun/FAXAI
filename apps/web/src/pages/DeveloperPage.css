@@ -1,4 +1,4 @@
-/* (2026-11-25) @Gomchiiii 개발 모드의 테스트·샘플 생성·DB 초기화·결과 출력 영역 스타일을 정의하는 파일입니다. */
+/* (2026-11-25) @Gomchiiii 개발 모드의 테스트·샘플 생성·Mock 팩스 송수신·DB 초기화 영역 스타일을 정의하는 파일입니다. */
 
 .dev-test-list {
   display: grid;
@@ -69,6 +69,50 @@
   border: 1px solid #add9bd;
   border-radius: 6px;
   background: #edf9f1;
+}
+
+.dev-fax-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.dev-fax-form {
+  display: grid;
+  gap: 18px;
+}
+
+.dev-fax-form h2 {
+  margin: 0 0 8px;
+}
+
+.dev-fax-form p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.dev-fax-form label {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.dev-fax-form input,
+.dev-fax-form textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px 11px;
+  border: 1px solid #b8b8b2;
+  border-radius: 6px;
+  font: inherit;
+  font-weight: 400;
+}
+
+.dev-fax-form button {
+  justify-self: start;
 }
 
 .dev-danger-zone {

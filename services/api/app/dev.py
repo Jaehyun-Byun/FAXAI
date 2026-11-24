@@ -11,7 +11,7 @@ from threading import Lock
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 
-from app import family, letter, memory
+from app import family, fax, letter, memory
 
 
 API_ROOT = Path(__file__).resolve().parents[1]
@@ -24,16 +24,20 @@ test_run_lock = Lock()
 
 class TestSuite(str, Enum):
     all = "all"
+    dashboard = "dashboard"
     health = "health"
     family = "family"
+    fax = "fax"
     letter = "letter"
     memory = "memory"
 
 
 TEST_SUITE_TARGETS = {
     TestSuite.all: ["tests"],
+    TestSuite.dashboard: ["tests/test_dashboard.py"],
     TestSuite.health: ["tests/test_health.py"],
     TestSuite.family: ["tests/test_family.py"],
+    TestSuite.fax: ["tests/test_fax.py", "tests/test_fax_macro.py"],
     TestSuite.letter: ["tests/test_letter.py"],
     TestSuite.memory: ["tests/test_memory.py"],
 }
@@ -162,13 +166,14 @@ def seed_sample_data() -> SampleDataResponse:
     return create_sample_data()
 
 
-# (2026-11-25) @Gomchiiii 개발 모드에서만 family.db, memory.db, archive.db를 삭제해 로컬 MVP 데이터를 완전히 초기화하는 함수입니다.
+# (2026-11-25) @Gomchiiii 개발 모드에서만 family.db, memory.db, archive.db, fax.db를 삭제해 로컬 MVP 데이터를 완전히 초기화하는 함수입니다.
 def hard_reset_databases() -> DatabaseResetResponse:
     allowed_directory = DEV_DATA_DIRECTORY.resolve()
     database_paths = (
         family.FAMILY_DATABASE_PATH,
         memory.MEMORY_DATABASE_PATH,
         letter.LETTER_DATABASE_PATH,
+        fax.FAX_DATABASE_PATH,
     )
     deleted_databases: list[str] = []
 

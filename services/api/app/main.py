@@ -5,7 +5,10 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.dashboard import router as dashboard_router
 from app.family import router as family_router
+from app.fax import router as fax_router, status_router as fax_status_router
+from app.fax_macro import router as fax_macro_router
 from app.letter import router as letter_router
 from app.memory import router as memory_router
 
@@ -19,7 +22,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(dashboard_router)
 app.include_router(family_router)
+app.include_router(fax_router)
+app.include_router(fax_status_router)
+app.include_router(fax_macro_router)
 app.include_router(letter_router)
 app.include_router(memory_router)
 
